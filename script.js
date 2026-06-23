@@ -13,15 +13,16 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
     const file = fileInput.files[0];
 
     try {
-        // Kita tidak menembak AI langsung, melainkan menembak backend Vercel kita sendiri
         const response = await fetch("/api/upscale", {
             method: "POST",
             headers: { "Content-Type": file.type },
             body: file
         });
 
+        // INI BAGIAN YANG KITA UBAH AGAR ERROR ASLI TERBACA
         if (!response.ok) {
-            throw new Error("Gagal memproses gambar di server backend.");
+            const errorText = await response.text();
+            throw new Error("Penyebab asli: " + errorText);
         }
 
         const blob = await response.blob();
@@ -31,7 +32,7 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
 
     } catch (error) {
         console.error("Error:", error);
-        alert("Pesan: " + error.message);
+        alert(error.message); // Menampilkan error asli ke layar
     } finally {
         loadingText.style.display = "none";
     }
