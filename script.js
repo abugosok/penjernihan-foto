@@ -22,7 +22,7 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
         const response = await fetch("https://api.deepai.org/api/torch-srgan", {
             method: "POST",
             headers: {
-                "api-key": "MASUKKAN_API_KEY_KAMU_DI_SINI" // <-- GANTI BAGIAN INI
+                "api-key": "ac31c35b-0536-430b-abd8-f17a65b7bd3a" // <-- GANTI BAGIAN INI
             },
             body: formData
         });
