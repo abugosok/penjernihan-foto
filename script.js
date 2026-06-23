@@ -34,7 +34,9 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
             resultImage.src = data.output_url;
             resultImage.style.display = "block";
         } else {
-            alert("Gagal memproses foto. Coba lagi ya.");
+            // MENAMPILKAN ERROR ASLI DARI AI
+            const errorMessage = data.err || data.status || "Error dari server DeepAI";
+            alert("Pesan dari AI: " + errorMessage);
         }
     } catch (error) {
         console.error("Error:", error);
