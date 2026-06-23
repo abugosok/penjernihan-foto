@@ -9,40 +9,41 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
         return;
     }
 
-    // Tampilkan teks loading
     loadingText.style.display = "block";
     resultImage.style.display = "none";
 
-    // Siapkan data foto untuk dikirim ke AI
-    const formData = new FormData();
-    formData.append("image", fileInput.files[0]);
+    // Ambil file foto mentahnya
+    const file = fileInput.files[0];
 
     try {
-        // Mengirim foto ke API DeepAI (Model Super Resolution)
-        const response = await fetch("https://api.deepai.org/api/torch-srgan", {
+        // Mengirim foto ke server Hugging Face (menggunakan model Swin2SR untuk Upscaling)
+        const response = await fetch("https://api-inference.huggingface.co/models/caidas/swin2SR-classical-sr-x2-64", {
             method: "POST",
             headers: {
-                "api-key": "ac31c35b-0536-430b-abd8-f17a65b7bd3a" // <-- GANTI BAGIAN INI
+                "Authorization": "Bearer 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", // <-- GANTI INI DENGAN TOKEN hf_...
+                "Content-Type": file.type
             },
-            body: formData
+            body: file
         });
 
-        const data = await response.json();
-
-        // Jika berhasil, tampilkan hasilnya
-        if (data.output_url) {
-            resultImage.src = data.output_url;
-            resultImage.style.display = "block";
-        } else {
-            // MENAMPILKAN ERROR ASLI DARI AI
-            const errorMessage = data.err || data.status || "Error dari server DeepAI";
-            alert("Pesan dari AI: " + errorMessage);
+        // Cek jika ada error dari server
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Gagal memproses gambar.");
         }
+
+        // Hugging Face mengembalikan langsung file gambar (Blob)
+        const blob = await response.blob();
+        
+        // Mengubah blob gambar menjadi URL yang bisa ditampilkan di web
+        const imageUrl = URL.createObjectURL(blob);
+        resultImage.src = imageUrl;
+        resultImage.style.display = "block";
+
     } catch (error) {
         console.error("Error:", error);
-        alert("Terjadi kesalahan sistem.");
+        alert("Pesan dari AI: " + error.message);
     } finally {
-        // Sembunyikan teks loading setelah selesai
         loadingText.style.display = "none";
     }
 });
