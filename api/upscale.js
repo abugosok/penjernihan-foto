@@ -1,3 +1,5 @@
+export const maxDuration = 60; // MANTRA AJAIB: Memperpanjang napas Vercel jadi 60 detik!
+
 export const config = {
     api: {
         bodyParser: false,
@@ -36,6 +38,7 @@ export default async function handler(req, res) {
         return res.status(200).send(Buffer.from(resultBuffer));
 
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        // Jika masih gagal fetch, kita berikan pesan yang lebih jelas
+        return res.status(500).json({ error: error.message, detail: "Koneksi terputus. AI butuh waktu lebih dari 60 detik atau sedang offline." });
     }
 }
