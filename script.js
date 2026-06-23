@@ -3,6 +3,7 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
     const loadingText = document.getElementById('loadingText');
     const resultImage = document.getElementById('resultImage');
 
+    // Cek apakah user sudah memasukkan foto
     if (fileInput.files.length === 0) {
         alert("Pilih foto dulu, bro!");
         return;
@@ -11,35 +12,33 @@ document.getElementById('upscaleBtn').addEventListener('click', async () => {
     loadingText.style.display = "block";
     resultImage.style.display = "none";
 
-    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append("image", fileInput.files[0]);
 
     try {
-        // JURUS RAHASIA: Memakai Proxy agar tembus semua provider internet Indonesia
-        const proxyUrl = "https://corsproxy.io/?";
-        const targetUrl = encodeURIComponent("https://api-inference.huggingface.co/models/caidas/swin2SR-classical-sr-x2-64");
-        
-        const response = await fetch(proxyUrl + targetUrl, {
+        // Kita kembali menggunakan DeepAI, tapi dengan model gratis (Waifu2x)
+        const response = await fetch("https://api.deepai.org/api/waifu2x", {
             method: "POST",
             headers: {
-                "Authorization": "Bearer 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", // <-- JANGAN LUPA MASUKKAN TOKEN KAMU LAGI
-                "Content-Type": file.type
+                "api-key": "ac31c35b-0536-430b-abd8-f17a65b7bd3a" // <-- GANTI PAKE KUNCI DEEPAI
             },
-            body: file
+            body: formData
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Gagal memproses gambar.");
+        const data = await response.json();
+
+        // Jika berhasil, tampilkan hasilnya
+        if (data.output_url) {
+            resultImage.src = data.output_url;
+            resultImage.style.display = "block";
+        } else {
+            // Tampilkan error asli jika ditolak AI
+            const errorMessage = data.err || data.status || "Error dari server DeepAI";
+            alert("Pesan dari AI: " + errorMessage);
         }
-
-        const blob = await response.blob();
-        const imageUrl = URL.createObjectURL(blob);
-        resultImage.src = imageUrl;
-        resultImage.style.display = "block";
-
     } catch (error) {
         console.error("Error:", error);
-        alert("Pesan dari sistem: " + error.message);
+        alert("Gagal koneksi ke server AI.");
     } finally {
         loadingText.style.display = "none";
     }
